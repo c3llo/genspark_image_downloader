@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { width: 220px; padding: 15px; font-family: sans-serif; background-color: #f4f4f9; }
+        .info { margin-bottom: 15px; font-size: 14px; }
+        #count { font-weight: bold; color: #2e7d32; }
+        .option-group { margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 8px; border: 1px solid #ddd; }
+        label { font-size: 12px; color: #666; display: block; margin-bottom: 5px; }
+        select { width: 100%; padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 12px; cursor: pointer; margin-bottom: 8px; border: none; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+        #downloadBtn { background-color: #1a73e8; color: white; }
+        #downloadBtn:hover { background-color: #1557b0; }
+        #clearBtn { background-color: #f1f3f4; color: #3c4043; }
+        #status { font-size: 11px; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="info">수집된 이미지: <span id="count">0</span>개</div>
+    
+    <div class="option-group">
+        <label>다운로드 규칙 설정</label>
+        <select id="imagesPerClip">
+            <option value="1">1장당 1클립 (1, 2, 3...)</option>
+            <option value="2" selected>2장당 1클립 (1-1, 1-2...)</option>
+            <option value="3">3장당 1클립 (1-1, 1-2, 1-3...)</option>
+            <option value="4">4장당 1클립</option>
+            <option value="5">5장당 1클립</option>
+            <option value="skip_2">1장당 2클립 (1, 3, 5...)</option>
+            <option value="skip_3">1장당 3클립 (1, 4, 7...)</option>
+            <option value="skip_4">1장당 4클립 (1, 5, 9...)</option>
+            <option value="skip_5">1장당 5클립 (1, 6, 11...)</option>
+        </select>
+    </div>
+
+    <button id="downloadBtn">순서대로 다운로드</button>
+    <button id="clearBtn">목록 비우기</button>
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
