@@ -195,6 +195,26 @@ document.getElementById("downloadBtn").addEventListener("click", async () => {
     });
 });
 
+document.getElementById("sequentialDownloadBtn").addEventListener("click", async () => {
+    chrome.storage.local.get({ collectedImages: [] }, async (data) => {
+        const images = data.collectedImages;
+        if (images.length === 0) return alert("수집된 이미지가 없습니다.");
+
+        const selectValue = document.getElementById("imagesPerClip").value;
+        const status = document.getElementById("status");
+        status.innerText = "순차 다운로드 중...";
+
+        for (let i = 0; i < images.length; i++) {
+            const fileName = getFileNameByRule(i, selectValue);
+            chrome.downloads.download({ url: images[i], filename: fileName });
+            status.innerText = `순차 다운로드 중... (${i + 1}/${images.length})`;
+            await new Promise((resolve) => setTimeout(resolve, 400));
+        }
+
+        status.innerText = "완료! (개별 파일 다운로드)";
+    });
+});
+
 document.getElementById("clearBtn").addEventListener("click", () => {
     chrome.storage.local.set({collectedImages: []}, () => {
         updateCount();
