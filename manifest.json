@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "AI Asset Master Collector",
+    "name": "AXON 이미지 다운로더",
     "version": "1.6",
     "permissions": ["storage", "downloads", "activeTab"],
     "host_permissions": [

@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <div class="info">수집된 이미지: <span id="count">0</span>개</div>
+    <div class="info" id="count-wrap">수집: <span id="count">0장 · 빈칸 0 · 다음 1번</span></div>
     
     <div class="option-group">
         <label>다운로드 규칙 설정</label>
@@ -34,6 +34,7 @@
         </select>
     </div>
 
+    <button id="openListBtn">수집된 목록 보기</button>
     <button id="downloadBtn">일괄(ZIP) 다운로드</button>
     <button id="sequentialDownloadBtn">순서대로 다운로드</button>
     <button id="clearBtn">목록 비우기</button>

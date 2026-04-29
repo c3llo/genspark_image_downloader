@@ -1,10 +1,41 @@
+function popupSlotStats(images) {
+    const arr = Array.isArray(images) ? images : [];
+    let real = 0;
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] != null && arr[i] !== "") real++;
+    }
+    const total = arr.length;
+    const blanks = total - real;
+    return { real, blanks, total, nextNum: total + 1 };
+}
+
 function updateCount() {
-    chrome.storage.local.get({collectedImages: []}, (data) => {
-        document.getElementById("count").innerText = data.collectedImages.length;
+    chrome.storage.local.get({ collectedImages: [] }, (data) => {
+        const { real, blanks, nextNum } = popupSlotStats(data.collectedImages);
+        const el = document.getElementById("count");
+        if (el) {
+            el.innerHTML = `${real}장 · 빈칸 ${blanks} · 다음 <strong>${nextNum}</strong>번`;
+        }
     });
 }
 
 document.addEventListener('DOMContentLoaded', updateCount);
+
+document.getElementById("openListBtn").addEventListener("click", async () => {
+    const status = document.getElementById("status");
+    try {
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        const activeTab = tabs && tabs[0];
+        if (!activeTab || typeof activeTab.id !== "number") {
+            status.innerText = "활성 탭을 찾을 수 없습니다.";
+            return;
+        }
+        await chrome.tabs.sendMessage(activeTab.id, { type: "gsc-open-list-modal" });
+    } catch (error) {
+        status.innerText = "현재 페이지에서 목록 창을 열 수 없습니다.";
+        console.error(error);
+    }
+});
 
 function getFileNameByRule(index, selectValue) {
     if (selectValue.startsWith("skip_")) {
@@ -147,7 +178,11 @@ function createZipBlob(entries) {
 document.getElementById("downloadBtn").addEventListener("click", async () => {
     chrome.storage.local.get({collectedImages: []}, async (data) => {
         const images = data.collectedImages;
-        if (images.length === 0) return alert("수집된 이미지가 없습니다.");
+        if (!Array.isArray(images) || images.length === 0) {
+            return alert("수집된 이미지가 없습니다.");
+        }
+        const hasAnyImage = images.some((x) => x != null && x !== "");
+        if (!hasAnyImage) return alert("수집된 이미지가 없습니다. (빈칸만 있습니다)");
 
         const selectValue = document.getElementById("imagesPerClip").value;
         const status = document.getElementById("status");
@@ -157,7 +192,8 @@ document.getElementById("downloadBtn").addEventListener("click", async () => {
             const zipEntries = [];
 
             for (let i = 0; i < images.length; i++) {
-                status.innerText = `이미지 수집 중... (${i + 1}/${images.length})`;
+                if (images[i] == null || images[i] === "") continue;
+                status.innerText = `이미지 수집 중... (슬롯 ${i + 1}/${images.length})`;
                 const response = await fetch(images[i]);
                 if (!response.ok) {
                     throw new Error(`이미지 다운로드 실패: ${response.status}`);
@@ -198,16 +234,21 @@ document.getElementById("downloadBtn").addEventListener("click", async () => {
 document.getElementById("sequentialDownloadBtn").addEventListener("click", async () => {
     chrome.storage.local.get({ collectedImages: [] }, async (data) => {
         const images = data.collectedImages;
-        if (images.length === 0) return alert("수집된 이미지가 없습니다.");
+        if (!Array.isArray(images) || images.length === 0) {
+            return alert("수집된 이미지가 없습니다.");
+        }
+        const hasAnyImage = images.some((x) => x != null && x !== "");
+        if (!hasAnyImage) return alert("수집된 이미지가 없습니다. (빈칸만 있습니다)");
 
         const selectValue = document.getElementById("imagesPerClip").value;
         const status = document.getElementById("status");
         status.innerText = "순차 다운로드 중...";
 
         for (let i = 0; i < images.length; i++) {
+            if (images[i] == null || images[i] === "") continue;
             const fileName = getFileNameByRule(i, selectValue);
             chrome.downloads.download({ url: images[i], filename: fileName });
-            status.innerText = `순차 다운로드 중... (${i + 1}/${images.length})`;
+            status.innerText = `순차 다운로드 중... (슬롯 ${i + 1}/${images.length})`;
             await new Promise((resolve) => setTimeout(resolve, 400));
         }
 
